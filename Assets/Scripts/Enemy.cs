@@ -2,45 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-public class Enemy : MonoBehaviour, ISoldier
+public class Enemy : Solder
 {
     public event Action<Player> OnPlayerDetected;
     public event Action OnStacked;
 
-
-
-    public Movement Movement => movement;
-    public Rotation Rotation => rotation;
-    public HP GetHealth() => hitPoints;
-
-    [SerializeField] private Movement movement;
-    [SerializeField] private Rotation rotation;
-    [SerializeField] private HP hitPoints;
-    [SerializeField] private Bullet bulletPrefab;
-    [SerializeField] private float tempShoot;
     [SerializeField] private float viewDistance;
 
-    private TimeSpan reloadTime = TimeSpan.FromSeconds(2f);
-    private DateTime lastShoot;
-
-    public void Init()
-    {
-        lastShoot = DateTime.Now;
-        hitPoints.OnDead += Dead;
-    }
-    private bool CanShoot()
-    {
-        if (DateTime.Now - lastShoot >= reloadTime)
-        {
-            return true;
-        }
-        return false;
-    }
-    private void Dead()
-    {
-        hitPoints.OnDead -= Dead;
-        Destroy(gameObject);
-    }
     private void OnTriggerStay2D(Collider2D collision)
     {
         if (collision.gameObject.TryGetComponent<Player>(out Player player))
