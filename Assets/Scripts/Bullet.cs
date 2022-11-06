@@ -7,6 +7,7 @@ public class Bullet : MonoBehaviour
 {
     [SerializeField] private Movement movement;
     [SerializeField, Range(0, 100)] private int damage;
+    [SerializeField] private int countRebound;
     private ISoldier owner;
 
     public Movement Movement => movement;
@@ -15,9 +16,19 @@ public class Bullet : MonoBehaviour
     {
         owner = soldier;
     }
-    private Vector3 Rebound()
+    // Из за функции ниже нормально не работает отскок ... доработать 
+    private Vector3 Rebound(Vector3 normal)
     {
-        var newDirection = Vector3.Reflect(movement.Direction, Vector3.right);
+        //Vector3 newDirection;
+        //if(movement.Direction.y > movement.Direction.x)
+        //{
+        var newDirection = Vector3.Reflect(movement.Direction, normal);
+        //}
+        //else
+        //{
+        //    newDirection = Vector3.Reflect(movement.Direction, Vector3.up);
+        //}
+
         return newDirection;
     }
     private void OnCollisionEnter2D(Collision2D collision)
@@ -36,9 +47,18 @@ public class Bullet : MonoBehaviour
                 Destroy(gameObject);
             }
         }
-        if(collision.gameObject.TryGetComponent<Wall>(out Wall wall))
+        if (collision.gameObject.TryGetComponent<Wall>(out Wall wall))
         {
-            movement.UpdateDirection(Rebound());
+            if (countRebound > 0)
+            {
+                movement.UpdateDirection(Rebound(collision.contacts[0].normal));
+                countRebound--;
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
+
         }
     }
 }

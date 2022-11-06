@@ -66,8 +66,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movement: {fileID: 5627633132555743656}
   rotation: {fileID: 2057845533381437944}
-  hitPoints: {fileID: 4919523226529428426}
   bulletPrefab: {fileID: 3349753855099785379, guid: 5299338a48b0eac4ea9954d8368386a8, type: 3}
+  hitPoints: {fileID: 4919523226529428426}
   viewDistance: 100
 --- !u!58 &633930040311905719
 CircleCollider2D:
