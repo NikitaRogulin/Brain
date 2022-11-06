@@ -16,19 +16,9 @@ public class Bullet : MonoBehaviour
     {
         owner = soldier;
     }
-    // Из за функции ниже нормально не работает отскок ... доработать 
     private Vector3 Rebound(Vector3 normal)
     {
-        //Vector3 newDirection;
-        //if(movement.Direction.y > movement.Direction.x)
-        //{
         var newDirection = Vector3.Reflect(movement.Direction, normal);
-        //}
-        //else
-        //{
-        //    newDirection = Vector3.Reflect(movement.Direction, Vector3.up);
-        //}
-
         return newDirection;
     }
     private void OnCollisionEnter2D(Collision2D collision)
