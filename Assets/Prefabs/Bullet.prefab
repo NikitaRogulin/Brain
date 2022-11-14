@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2352643455814362344}
   - component: {fileID: 931445811932797674}
   - component: {fileID: 2032070155751026402}
-  m_Layer: 0
+  m_Layer: 1
   m_Name: Bullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -116,6 +116,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 10
+  filter:
+    useTriggers: 0
+    useLayerMask: 0
+    useDepth: 0
+    useOutsideDepth: 0
+    useNormalAngle: 0
+    useOutsideNormalAngle: 0
+    layerMask:
+      serializedVersion: 2
+      m_Bits: 0
+    minDepth: 0
+    maxDepth: 0
+    minNormalAngle: 0
+    maxNormalAngle: 0
+  minDistance: 0
   normalTransform: {fileID: 1349128021363271091}
 --- !u!58 &931445811932797674
 CircleCollider2D:
