@@ -1,89 +1,97 @@
-﻿using System.Collections;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class AIController : MonoBehaviour
 {
-    private Enemy enemy;
-    private Player target;
-    private Vector2 randomDirection;
-    private Coroutine randomVector;
+    [SerializeField, Range(0f, 100f)] private float viewDistance;
+    [SerializeField] private Solder player;
+    [SerializeField, Range(0f, 10f)] private float distnace;
+    [SerializeField] private Road road;
 
-
-    public void Setup(Enemy enemy)
-    {
-        this.enemy = enemy; 
-        enemy.OnPlayerDetected += InstTarget;
-        enemy.OnStacked += ReboundVector;
-    }
-    public void InstTarget(Player player)
-    {
-        target = player;
-    }
+    private GameObject playerGameobject;
+    private Solder enemy;
     private float switchLogicTime = 0.1f;
-    private bool IsEnemyDetected()
+    public void SetupEnemy(Solder enemy)
     {
-        return target != null;
+        this.enemy = enemy;
     }
-
+    public void SetupPlayer(Solder player)
+    {
+        this.player = player;
+        playerGameobject = player.gameObject;
+       
+    }
+    private bool IsPlayerVisiable()
+    {
+        if(playerGameobject == null)
+        {
+            return false;
+        }
+        var distance = player.transform.position - enemy.transform.position;
+        if(distance.magnitude <= viewDistance)
+        {
+            var hits = Physics2D.RaycastAll(enemy.transform.position, distance.normalized, viewDistance);
+            var list = new List<RaycastHit2D>(hits);
+            list.RemoveAll(x=>x.collider.gameObject == enemy.gameObject);
+            if (list.Count > 0 && list[0].collider.gameObject == player.gameObject)
+            {
+                return true;
+            }
+            return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
     private IEnumerator Start()
     {
-        randomVector = StartCoroutine(UpdateRandomVectorCoroutine());
         while (true)
         {
-            if (IsEnemyDetected())
+            
+            if (IsPlayerVisiable())
             {
-                yield return StartCoroutine(TargetLogic());
+                yield return StartCoroutine(Skirmish());
+
             }
-            else if (IsEnemyDetected() == false)
+            else if (IsPlayerVisiable() == false)
             {
-                UpdateRandomVector();
-                yield return StartCoroutine(PatrolLogic());
+                yield return StartCoroutine(Patrol());
             }
+            
 
             yield return new WaitForSeconds(switchLogicTime);
         }
     }
-    private void ReboundVector()
+    private IEnumerator Patrol()
     {
-        var newDirection = Vector3.Reflect(randomDirection, Vector3.right);
-        randomDirection = newDirection;
-        StopCoroutine(randomVector);
-        randomVector = StartCoroutine(UpdateRandomVectorCoroutine());
-    }
-
-    private IEnumerator PatrolLogic()
-    {
-        while (IsEnemyDetected() == false)
+        while (IsPlayerVisiable() == false)
         {
-            enemy.Movement.UpdateDirection(randomDirection);
-
+            enemy.Movement.UpdateDirection(road.FindWay(enemy.transform.position));
             yield return new WaitForSeconds(switchLogicTime);
         }
     }
-    private IEnumerator UpdateRandomVectorCoroutine()
+   
+    private IEnumerator Skirmish()
     {
-        while (true)
+        while (IsPlayerVisiable())
         {
-            UpdateRandomVector();
-            yield return new WaitForSeconds(2f);
-        }
-    }
-    private void UpdateRandomVector()
-    {
-        randomDirection = RandomVector();
-    }
-    private Vector2 RandomVector()
-    {
-        return new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
-    }
-    private IEnumerator TargetLogic()
-    {
-        while (IsEnemyDetected())
-        {
-            var direction = target.transform.position - enemy.transform.position;
-            enemy.Movement.UpdateDirection(direction);
-            enemy.Rotation.UpdateRotation(target.transform.position);
+            var direction = player.transform.position - enemy.transform.position;
+            if(direction.magnitude <= distnace)
+            {
+                enemy.Movement.UpdateDirection(Vector3.zero);
+            }
+            else
+            {
+                enemy.Movement.UpdateDirection(direction);
+            }
+            enemy.Rotation.UpdateRotation(player.transform.position); 
+            enemy.Gun.Shoot(direction);
             yield return new WaitForSeconds(0.1f);
         }
     }
+    
 }
